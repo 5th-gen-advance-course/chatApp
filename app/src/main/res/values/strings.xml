@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ChatApp_SocketIO</string>
+    <string name="user_action_typing">is typing</string>
 </resources>

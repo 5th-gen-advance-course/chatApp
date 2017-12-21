@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="10dp"
+    android:background="@android:color/transparent">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvProfile"
+            android:text="AY"
+            android:textSize="22dp"
+            android:textColor="#ffffff"
+            android:background="@drawable/image_profile_shape"
+            android:layout_alignParentLeft="true"/>
+
+        <TextView
+            android:id="@+id/tvMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_gravity="start"
+            android:layout_toEndOf="@+id/tvProfile"
+            android:layout_toRightOf="@+id/tvProfile"
+            android:background="@drawable/text_message_shape"
+            android:gravity="start"
+            android:text="This color palette comprises primary and accent"
+            android:textColor="@color/colorTextColor"
+            android:textSize="16dp" />
+    </RelativeLayout>
+</LinearLayout>
