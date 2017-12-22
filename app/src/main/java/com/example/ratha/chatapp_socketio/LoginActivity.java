@@ -37,7 +37,8 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mSocket.off(EVENT_LOGIN,onUserLogin);
+        //mSocket.disconnect();
+        //mSocket.off(EVENT_LOGIN,onUserLogin);
     }
 
     public void onLogin(View view) {
@@ -48,7 +49,7 @@ public class LoginActivity extends AppCompatActivity {
         intent.putExtra("username",mUserName);
         setResult(RESULT_OK,intent);
         finish();
-        Log.e(TAG, "onLogin: after clicked");
+        //Log.e(TAG, "onLogin: after clicked");
     }
 
     private String mUserName;
@@ -58,10 +59,8 @@ public class LoginActivity extends AppCompatActivity {
             tvUserName.requestFocus();
             return;
         }
-
         mUserName=username;
         mSocket.emit(EVENT_LOGIN,mUserName);
-
     }
 
     private Emitter.Listener onUserLogin = new Emitter.Listener() {

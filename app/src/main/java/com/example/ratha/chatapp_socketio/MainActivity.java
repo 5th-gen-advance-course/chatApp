@@ -76,11 +76,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode!= MainActivity.RESULT_OK){
+        if(resultCode!= MainActivity.RESULT_OK){
             return;
         }
-        mUserName =data.getStringExtra("username");
-        addToLog("Welcome to Socket.IO Chat –");
+        mUserName = data.getStringExtra("username");
+        addToLog("Welcome " +mUserName+"  to Socket.IO Chat –");
     }
 
     private void addToLog(String message) {
@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         .message(message).build());
         messageAdapter.notifyItemInserted(mMessages.size()-1);
         scrollToBottom();
+        Log.e(TAG, "addToLog: call" );
     }
 
     public void onSendMessage(View view) {
@@ -96,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void send(){
         mTyping=false;
-
         String message=etMessage.getText().toString().trim();
         //Log.e("message->",message);
         if(TextUtils.isEmpty(message)){
@@ -139,13 +139,12 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject data= (JSONObject) args[0];
                     String userName="";
                     String message="";
-                   /* try{
+                    try{
                         userName=data.getString("username");
                         message=data.getString("message");
                     }catch (JSONException e){
                         Log.e(TAG,e.getMessage());
-                    }*/
-
+                    }
                     addMessage(userName,message);
                 }
             });
@@ -154,10 +153,26 @@ public class MainActivity extends AppCompatActivity {
     private Emitter.Listener onUserJoin=new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            String  data= (String) args[0];
-            Log.e(TAG, "call: join"+ data);
+            final String  data= (String) args[0];
+            MainActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.e(TAG, "call: join"+ data);
+                    /*onLogin("welcome to Socket IO chat");*/
+                    addToLog("welcome "+data+" to Socket IO chat");
+                }
+            });
+
         }
     };
+
+    private void onLogin(String s) {
+        mMessages.add(new Message.Builder(Message.TYPE_LOG)
+        .message(s).build());
+        messageAdapter.notifyItemInserted(this.mMessages.size()-1);
+        scrollToBottom();
+    }
+
     private Emitter.Listener onSocketConnect=new Emitter.Listener() {
         @Override
         public void call(Object... args) {
@@ -176,5 +191,6 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         mSocket.disconnect();
         mSocket.off(NEW_MESSAGE,onNewMessage);
+        mSocket.off(USER_JOIN,onUserJoin);
     }
 }

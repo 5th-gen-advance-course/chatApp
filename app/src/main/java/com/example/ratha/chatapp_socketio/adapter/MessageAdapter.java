@@ -89,7 +89,6 @@ public class MessageAdapter  extends RecyclerView.Adapter<MessageAdapter.ViewHol
     }
 
     class ViewHolder extends RecyclerView.ViewHolder{
-
         @BindView(R.id.tvProfile)
         TextView tvProfile;
         @BindView(R.id.tvMessage)
