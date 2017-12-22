@@ -1,5 +1,6 @@
 package com.example.ratha.chatapp_socketio;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -29,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String USER_JOIN = "join";
     private static final String USER_TYPING = "typing";
     private static final String USER_STOP_TYPING = "stop typing";
-
+    private static final int REQUEST_LOGIN = 0;
     RecyclerView messageRecyclerView;
     EditText etMessage;
     Socket mSocket ;
@@ -51,18 +52,42 @@ public class MainActivity extends AppCompatActivity {
         mSocket.on(Socket.EVENT_CONNECT,onSocketConnect);
         mSocket.on(Socket.EVENT_DISCONNECT,onSocketDisconnect);
         mSocket.on(USER_JOIN,onUserJoin);
-        //mSocket.on(NEW_MESSAGE,onNewMessage);
+        mSocket.on(NEW_MESSAGE,onNewMessage);
         mSocket.connect();
 
+        //login
+        goToLogin();
         //setup message recycler view
         setupMessageRecyclerView();
 
+    }
+
+    private void goToLogin() {
+        Intent intent=new Intent(this,LoginActivity.class);
+        startActivityForResult(intent,REQUEST_LOGIN);
     }
 
     private void setupMessageRecyclerView() {
         messageRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         messageAdapter=new MessageAdapter(this,mMessages);
         messageRecyclerView.setAdapter(messageAdapter);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode!= MainActivity.RESULT_OK){
+            return;
+        }
+        mUserName =data.getStringExtra("username");
+        addToLog("Welcome to Socket.IO Chat –");
+    }
+
+    private void addToLog(String message) {
+        mMessages.add(new Message.Builder(Message.TYPE_LOG)
+        .message(message).build());
+        messageAdapter.notifyItemInserted(mMessages.size()-1);
+        scrollToBottom();
     }
 
     public void onSendMessage(View view) {
@@ -83,7 +108,15 @@ public class MainActivity extends AppCompatActivity {
         addMessage(mUserName,message);
         //Log.e(TAG, "send: socket emit");
         // perform the sending message attempt.
-        mSocket.emit("new message",message);
+        JSONObject data=new JSONObject();
+        try {
+            data.put("username",mUserName);
+            data.put("message",message);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        mSocket.emit(NEW_MESSAGE,data);
     }
 
     private void addMessage(String userName,String message){
@@ -121,7 +154,8 @@ public class MainActivity extends AppCompatActivity {
     private Emitter.Listener onUserJoin=new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-
+            String  data= (String) args[0];
+            Log.e(TAG, "call: join"+ data);
         }
     };
     private Emitter.Listener onSocketConnect=new Emitter.Listener() {

@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
+import org.json.JSONObject;
+
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
@@ -19,6 +21,7 @@ public class LoginActivity extends AppCompatActivity {
     Socket mSocket;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,22 +29,29 @@ public class LoginActivity extends AppCompatActivity {
         tvUserName=findViewById(R.id.username);
         App app=(App) getApplication() ;
         mSocket=app.getSocket();
-        mSocket.on(EVENT_LOGIN,onUserLogin);
-        mSocket.connect();
+        //mSocket.on(EVENT_LOGIN,onUserLogin);
+        //mSocket.connect();
+
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mSocket.disconnect();
         mSocket.off(EVENT_LOGIN,onUserLogin);
     }
 
     public void onLogin(View view) {
-
+        Log.e(TAG, "onLogin: clicked");
         login();
+        Log.e(TAG, "onLogin: after clicked");
+        Intent intent =new Intent();
+        intent.putExtra("username",mUserName);
+        setResult(RESULT_OK,intent);
+        finish();
+        Log.e(TAG, "onLogin: after clicked");
     }
 
+    private String mUserName;
     private void login() {
         String username=tvUserName.getText().toString().trim();
         if(!TextUtils.isEmpty(username)){
@@ -49,13 +59,12 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        Intent intent =new Intent();
-        intent.putExtra("username",username);
-        setResult(RESULT_OK,intent);
-        finish();
+        mUserName=username;
+        mSocket.emit(EVENT_LOGIN,mUserName);
+
     }
 
-    private Emitter.Listener onUserLogin =new Emitter.Listener() {
+    private Emitter.Listener onUserLogin = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
             Log.e(TAG, "call: Login");
